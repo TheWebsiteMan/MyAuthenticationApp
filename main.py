@@ -1,3 +1,7 @@
+import bcrypt
+
+# Initialise global vars
+salt = b"$2b$12$ieYNkQp8QumgedUo30nuPO"
 updatelogin = 0
 current_user = ""
 
@@ -6,10 +10,11 @@ def login():
     while True:
         user = input("Username: ")
         password = input("Password: ")
+        hashed_password = bcrypt.hashpw(password.encode(), salt=salt)
         with open("plain_text.txt", "r") as file:
             for line in file: 
-                user_t, password_t = line.rstrip().split(",")
-                if user == user_t and password == password_t:
+                user_t, input_password = line.rstrip().split(",")
+                if user == user_t and bcrypt.checkpw(input_password.encode(), hashed_password):
                     current_user = user
                     print(f"Welcome, {user}!")
                     return 
@@ -22,7 +27,7 @@ def register():
         with open("plain_text.txt", "r") as file:
             lines = file.readlines()
             for line in lines: 
-                user_t, password_t = line.rstrip().split(",")
+                user_t, input_password = line.rstrip().split(",")
                 if user != user_t:
                     if len(password) > 3:
                         with open("plain_text.txt", "a") as file:
@@ -41,7 +46,7 @@ def changepass():
     with open("plain_text.txt", "r") as file:
         lines = file.readlines()
         for line in lines:
-            user_t, password_t = line.rstrip().split(",")
+            user_t, input_password = line.rstrip().split(",")
             if current_user == user_t:
                 new_pass = input("New password: ")
                 if len(new_pass) > 3:
